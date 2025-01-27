@@ -12,7 +12,7 @@
 	const isLoading = writable(false);
 	const selectedPhoto = writable<null | { url: string; title: string }>(null);
 
-	const base = import.meta.env.VITE_PUBLIC_BASE_URL || 'http://localhost:5173';
+	const base = import.meta.env.VITE_PUBLIC_BASE_URL || 'http://sumpternet-photo.netlify.app';
 
 	async function fetchPhotosByTag(tag: string) {
 		isLoading.set(true);
