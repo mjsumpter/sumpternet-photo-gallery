@@ -19,7 +19,7 @@ export async function GET() {
 			// Iterate through all photos and count tags
 			photoTags.forEach((photo) => {
 				const tags = photo.tags.split(' '); // Split tags by space
-				tags.forEach((tag) => {
+				tags.forEach((tag: string) => {
 					if (tag) {
 						// Increment the count for each tag
 						tagCounts[tag] = (tagCounts[tag] || 0) + 1;
