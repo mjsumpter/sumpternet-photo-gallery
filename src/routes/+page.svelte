@@ -12,12 +12,10 @@
 	const isLoading = writable(false);
 	const selectedPhoto = writable<null | { url: string; title: string }>(null);
 
-	const base = import.meta.env.VITE_PUBLIC_BASE_URL || 'http://sumpternet-photo.netlify.app';
-
 	async function fetchPhotosByTag(tag: string) {
 		isLoading.set(true);
 		try {
-			const res = await fetch(`${base}/api/photos?tags=${tag}`);
+			const res = await fetch(`/api/photos?tags=${tag}`);
 			const data = await res.json();
 			photos.set(data.photo || []); // Replace photos with filtered results
 		} catch (error) {
@@ -87,7 +85,7 @@
 	{:else}
 		<!-- Masonry Layout -->
 		<div class="mx-auto w-full sm:max-w-3xl xl:max-w-5xl">
-			<div class="gap-4 columns-3 md:columns-3 xl:columns-4">
+			<div class="columns-3 gap-4 md:columns-3 xl:columns-4">
 				{#each $photos as photo}
 					<div class="mb-4 break-inside-avoid">
 						<div
@@ -112,5 +110,5 @@
 </div>
 
 {#if $selectedPhoto}
-	<Modal photo={$selectedPhoto} closeModal={closeModal} />
+	<Modal photo={$selectedPhoto} {closeModal} />
 {/if}
