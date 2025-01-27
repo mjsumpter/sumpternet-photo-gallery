@@ -87,7 +87,7 @@
 	{:else}
 		<!-- Masonry Layout -->
 		<div class="mx-auto w-full sm:max-w-3xl xl:max-w-5xl">
-			<div class="columns-1 gap-4 sm:columns-2 md:columns-3 xl:columns-4">
+			<div class="gap-4 columns-3 md:columns-3 xl:columns-4">
 				{#each $photos as photo}
 					<div class="mb-4 break-inside-avoid">
 						<div

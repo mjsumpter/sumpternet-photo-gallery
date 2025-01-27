@@ -10,7 +10,7 @@
 	<footer class="footer">
 		<p>
 			<a href="https://matthewsumpter.org" target="_blank" rel="noopener noreferrer"
-				>Visit my webpage</a
+				>matthewsumpter.org</a
 			>
 		</p>
 		<p>
