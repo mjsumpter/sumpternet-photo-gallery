@@ -14,15 +14,11 @@
 
 	async function fetchPhotosByTag(tag: string) {
 		isLoading.set(true);
-		try {
-			const res = await fetch(`/api/photos?tags=${tag}`);
-			const data = await res.json();
-			photos.set(data.photo || []); // Replace photos with filtered results
-		} catch (error) {
-			console.error('Error fetching photos by tag:', error);
-		} finally {
-			isLoading.set(false);
-		}
+
+		tag
+			? photos.set(initialPhotos.filter((photo) => photo.tags.includes(tag)))
+			: photos.set(initialPhotos);
+		isLoading.set(false);
 	}
 
 	// Trigger refetch when `selectedTag` changes
