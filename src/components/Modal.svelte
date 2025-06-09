@@ -33,7 +33,7 @@
 	<div class="modal-content" role="document" onclick={(e) => e.stopPropagation()}>
 		<button class="close-button" onclick={closeModal}>X</button>
 		<!-- Display the photo -->
-		<img src={photo.url_o} alt={photo.title} />
+		<img src={photo.url_l} alt={photo.title} />
 
 		<!-- Small preview info in the corner -->
 		<div class="info-preview" onclick={toggleInfoBox}>ℹ️ Info</div>
