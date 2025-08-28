@@ -60,8 +60,10 @@
 
 <div class="flex min-h-screen flex-col items-center bg-black text-white">
 	<!-- Dropdown for Tags -->
-	<div class="filters mb-8 mt-5">
-		<label for="tag-dropdown" class="mb-2 font-semibold text-white">Filter by Tag:</label>
+	<div class="filters mb-8 mt-5 flex flex-col items-center gap-3 sm:flex-row">
+		<label for="tag-dropdown" class="font-semibold text-white">
+			Filter by Tag:
+		</label>
 		<select
 			id="tag-dropdown"
 			class="rounded bg-gray-800 px-4 py-2 text-white"
@@ -72,7 +74,7 @@
 				<option value={tag.tag}>{tag.tag} ({tag.count})</option>
 			{/each}
 		</select>
-		<button class="ml-4 rounded-md bg-blue-500 p-2" onclick={shufflePhotos}>Shuffle</button>
+		<button class="rounded-md bg-blue-500 p-2">Shuffle</button>
 	</div>
 
 	<!-- Conditional Loading Spinner -->
