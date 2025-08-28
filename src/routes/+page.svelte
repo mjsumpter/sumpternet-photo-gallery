@@ -81,7 +81,7 @@
 				<option value={tag.tag}>{tag.tag} ({tag.count})</option>
 			{/each}
 		</select>
-		<button class="rounded-md bg-blue-500 p-2">Shuffle</button>
+		<button class="rounded-md bg-blue-500 p-2" onclick={shufflePhotos}>Shuffle</button>
 	</div>
 
 	<!-- Conditional Loading Spinner -->
