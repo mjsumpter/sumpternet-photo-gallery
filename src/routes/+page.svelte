@@ -59,6 +59,13 @@
 </script>
 
 <div class="flex min-h-screen flex-col items-center bg-black text-white">
+	<a
+		href="https://www.flickr.com/photos/gravelfeet/"
+		rel="noopener noreferrer"
+		class="absolute top-4 right-4"
+	>
+			<img src="/flickr.png" alt="Flickr" class="h-8 w-auto" />
+	</a>
 	<!-- Dropdown for Tags -->
 	<div class="filters mb-8 mt-5 flex flex-col items-center gap-3 sm:flex-row">
 		<label for="tag-dropdown" class="font-semibold text-white">
