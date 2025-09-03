@@ -8,7 +8,7 @@
 	const { initialPhotos, tags } = data;
 
 	const photos = writable(initialPhotos);
-	const selectedTag = writable('');
+	const selectedTag = writable('showcase');
 	const isLoading = writable(false);
 	const selectedPhoto = writable<null | { url: string; title: string }>(null);
 
@@ -74,6 +74,7 @@
 		<select
 			id="tag-dropdown"
 			class="rounded bg-gray-800 px-4 py-2 text-white"
+			bind:value={$selectedTag}
 			onchange={handleSelectChange}
 		>
 			<option value="">All</option>
