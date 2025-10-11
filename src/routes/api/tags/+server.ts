@@ -30,7 +30,11 @@ export async function GET() {
 			// Convert the tagCounts object into an array of { tag, count } objects
 			const sortedTags = Object.entries(tagCounts)
 				.map(([tag, count]) => ({ tag, count }))
-				.sort((a, b) => b.count - a.count); // Sort by count (descending)
+				.sort((a, b) => {
+					if (a.tag === 'showcase') return -1;
+					if (b.tag === 'showcase') return 1;
+					return b.count - a.count;
+				}); // Sort by count (descending) while keeping showcase first
 
 			return json(sortedTags);
 		} else {
