@@ -11,10 +11,10 @@ export async function GET() {
 
 		// Check if the response contains photos
 		if (data?.photos?.photo) {
-			const photoTags = data.photos.photo;
+			const photoTags: { tags: string }[] = data.photos.photo;
 
 			// Initialize a tag count map
-			const tagCounts = {};
+			const tagCounts: Record<string, number> = {};
 
 			// Iterate through all photos and count tags
 			photoTags.forEach((photo) => {
@@ -30,6 +30,7 @@ export async function GET() {
 			// Convert the tagCounts object into an array of { tag, count } objects
 			const sortedTags = Object.entries(tagCounts)
 				.map(([tag, count]) => ({ tag, count }))
+				.filter((tag) => tag.count > 2)
 				.sort((a, b) => {
 					if (a.tag === 'showcase') return -1;
 					if (b.tag === 'showcase') return 1;
