@@ -5,7 +5,7 @@
 	import Modal from '../components/Modal.svelte';
 
 	let { data }: PageProps = $props();
-	const { initialPhotos, tags } = data;
+	const { initialPhotos, tags, series } = data;
 
 	const photos = writable(initialPhotos);
 	const selectedTag = writable('showcase');
@@ -66,6 +66,46 @@
 	>
 			<img src="/flickr.png" alt="Flickr" class="h-8 w-auto" />
 	</a>
+	<section class="mx-auto w-full max-w-5xl px-4 pb-6 pt-16">
+		<div class="flex flex-wrap items-end justify-between gap-4">
+			<div>
+				<p class="text-xs uppercase tracking-[0.3em] text-white/60">Series</p>
+				<h2 class="text-2xl font-semibold">Photographic Sequences</h2>
+			</div>
+			<p class="max-w-md text-sm text-white/60">
+				Full-page slideshows for narrative work and long-form projects.
+			</p>
+		</div>
+		{#if series.length > 0}
+			<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{#each series as item}
+					<a
+						href={`/series/${item.slug}`}
+						class="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition hover:border-white/30"
+					>
+						{#if item.coverUrl}
+							<img
+								src={item.coverUrl}
+								alt={item.title}
+								class="h-44 w-full object-cover"
+							/>
+						{:else}
+							<div class="flex h-44 items-center justify-center bg-white/5 text-xs uppercase tracking-[0.3em] text-white/40">
+								Add cover image
+							</div>
+						{/if}
+						<div class="space-y-2 p-4">
+							<h3 class="text-lg font-semibold group-hover:text-white">{item.title}</h3>
+							<p class="text-sm text-white/60">{item.description}</p>
+							<p class="text-xs uppercase tracking-[0.2em] text-white/50">View sequence</p>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else}
+			<p class="mt-6 text-sm text-white/60">No series yet.</p>
+		{/if}
+	</section>
 	<!-- Dropdown for Tags -->
 	<div class="filters mb-8 mt-5 flex flex-col items-center gap-3 sm:flex-row">
 		<label for="tag-dropdown" class="font-semibold text-white">
