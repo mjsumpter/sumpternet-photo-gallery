@@ -11,6 +11,7 @@
 	const selectedTag = writable('showcase');
 	const isLoading = writable(false);
 	const selectedPhoto = writable<null | { url: string; title: string }>(null);
+	const selectedIndex = writable<number | null>(null);
 
 	async function fetchPhotosByTag(tag: string) {
 		isLoading.set(true);
@@ -51,10 +52,31 @@
 
 	function openModal(photo) {
 		selectedPhoto.set(photo);
+		const index = $photos.findIndex((item) => item.id === photo.id);
+		selectedIndex.set(index >= 0 ? index : null);
 	}
 
 	function closeModal() {
 		selectedPhoto.set(null);
+		selectedIndex.set(null);
+	}
+
+	function showPhotoAt(index: number) {
+		const list = $photos;
+		if (!list.length) return;
+		const wrappedIndex = (index + list.length) % list.length;
+		selectedIndex.set(wrappedIndex);
+		selectedPhoto.set(list[wrappedIndex]);
+	}
+
+	function showNextPhoto() {
+		if ($selectedIndex === null) return;
+		showPhotoAt($selectedIndex + 1);
+	}
+
+	function showPreviousPhoto() {
+		if ($selectedIndex === null) return;
+		showPhotoAt($selectedIndex - 1);
 	}
 </script>
 
@@ -156,5 +178,5 @@
 </div>
 
 {#if $selectedPhoto}
-	<Modal photo={$selectedPhoto} {closeModal} />
+	<Modal photo={$selectedPhoto} {closeModal} onNext={showNextPhoto} onPrev={showPreviousPhoto} />
 {/if}
