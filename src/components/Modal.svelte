@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	let { photo, closeModal, onNext, onPrev } = $props<{
 		photo: {
@@ -15,6 +16,7 @@
 	}>();
 
 	let showInfoBox = $state(false);
+	let isImageLoading = $state(true);
 
 	const photoContent = $derived({
 		title: photo.title,
@@ -26,6 +28,7 @@
 	$effect(() => {
 		photo;
 		showInfoBox = false;
+		isImageLoading = true;
 	});
 
 	onMount(() => {
@@ -60,7 +63,17 @@
 			<button class="nav-button nav-right" onclick={onNext} aria-label="Next photo">→</button>
 		{/if}
 		<!-- Display the photo -->
-		<img src={photo.url_o} alt={photo.title} />
+		{#if isImageLoading}
+			<div class="image-loading">
+				<LoadingSpinner />
+			</div>
+		{/if}
+		<img
+			src={photo.url_o}
+			alt={photo.title}
+			onload={() => (isImageLoading = false)}
+			onerror={() => (isImageLoading = false)}
+		/>
 
 		<!-- Small preview info in the corner -->
 		<div class="info-preview" onclick={toggleInfoBox}>ℹ️ Info</div>
@@ -159,6 +172,16 @@
 		max-height: 100%;
 		object-fit: contain;
 		border-radius: 10px;
+	}
+
+	.image-loading {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.35);
+		z-index: 9;
 	}
 
 	.info-preview {
