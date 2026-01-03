@@ -1,55 +1,62 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
+	import LoadingSpinner from '../../../components/LoadingSpinner.svelte';
 	import type { PageProps } from '../../../../.svelte-kit/types/src/routes/$types';
 
 	let { data }: PageProps = $props();
 	const { series, photos } = data;
 
 	let currentIndex = $state(0);
-	let isPlaying = $state(false);
 	let showInfo = $state(false);
-	let intervalId: number | null = null;
+	let isImageLoading = $state(true);
+	let swipeStartX = $state(0);
+	let swipeStartY = $state(0);
 
 	const currentPhoto = $derived(photos[currentIndex]);
 	const totalPhotos = $derived(photos.length);
 	const hasPhotos = $derived(totalPhotos > 0);
+	const isFirst = $derived(currentIndex === 0);
+	const isLast = $derived(currentIndex === totalPhotos - 1);
+	const hasPrev = $derived(!isFirst && hasPhotos);
+	const hasNext = $derived(!isLast && hasPhotos);
 
 	const next = () => {
-		if (!hasPhotos) return;
-		currentIndex = (currentIndex + 1) % totalPhotos;
+		if (!hasPhotos || isLast) return;
+		isImageLoading = true;
+		currentIndex = currentIndex + 1;
 	};
 
 	const previous = () => {
-		if (!hasPhotos) return;
-		currentIndex = (currentIndex - 1 + totalPhotos) % totalPhotos;
+		if (!hasPhotos || isFirst) return;
+		isImageLoading = true;
+		currentIndex = currentIndex - 1;
 	};
 
-	const stopPlaying = () => {
-		if (intervalId !== null) {
-			clearInterval(intervalId);
-			intervalId = null;
-		}
-		isPlaying = false;
-	};
-
-	const startPlaying = () => {
-		if (intervalId !== null || !hasPhotos) return;
-		isPlaying = true;
-		intervalId = window.setInterval(() => {
-			next();
-		}, 4000);
-	};
-
-	const togglePlay = () => {
-		if (isPlaying) {
-			stopPlaying();
-		} else {
-			startPlaying();
-		}
-	};
 
 	const toggleInfo = () => {
 		showInfo = !showInfo;
+	};
+
+	const handleTouchStart = (event: TouchEvent) => {
+		const touch = event.touches[0];
+		if (!touch) return;
+		swipeStartX = touch.clientX;
+		swipeStartY = touch.clientY;
+	};
+
+	const handleTouchEnd = (event: TouchEvent) => {
+		const touch = event.changedTouches[0];
+		if (!touch) return;
+		const deltaX = touch.clientX - swipeStartX;
+		const deltaY = touch.clientY - swipeStartY;
+		const absX = Math.abs(deltaX);
+		const absY = Math.abs(deltaY);
+		if (absX < 40 || absX < absY) return;
+		if (deltaX < 0) {
+			next();
+		} else {
+			previous();
+		}
 	};
 
 	onMount(() => {
@@ -60,21 +67,15 @@
 			if (event.key === 'ArrowLeft') {
 				previous();
 			}
-			if (event.code === 'Space') {
-				event.preventDefault();
-				togglePlay();
-			}
 			if (event.key === 'i' || event.key === 'I') {
 				toggleInfo();
 			}
 		};
 
 		window.addEventListener('keydown', handleKeydown);
-		return () => window.removeEventListener('keydown', handleKeydown);
-	});
-
-	onDestroy(() => {
-		stopPlaying();
+		return () => {
+			window.removeEventListener('keydown', handleKeydown);
+		};
 	});
 </script>
 
@@ -96,39 +97,59 @@
 	</div>
 
 	{#if hasPhotos}
-		<div class="relative flex min-h-screen items-center justify-center px-4 pt-20 pb-24">
-			<button
-				class="absolute left-0 top-0 h-full w-1/2 cursor-w-resize"
-				onclick={previous}
-				aria-label="Previous image"
-			></button>
-			<button
-				class="absolute right-0 top-0 h-full w-1/2 cursor-e-resize"
-				onclick={next}
-				aria-label="Next image"
-			></button>
+		<div
+			class="relative flex min-h-screen items-center justify-center px-4 pt-20 pb-0 md:pb-24"
+			ontouchstart={handleTouchStart}
+			ontouchend={handleTouchEnd}
+		>
+			{#if hasPrev}
+				<button
+					class="absolute left-0 top-0 h-full w-1/2 cursor-w-resize"
+					onclick={previous}
+					aria-label="Previous image"
+				></button>
+				<div class="pointer-events-none absolute left-0 top-0 h-full w-1/6 bg-gradient-to-r from-black/40 to-transparent opacity-70"></div>
+			{/if}
+			{#if hasNext}
+				<button
+					class="absolute right-0 top-0 h-full w-1/2 cursor-e-resize"
+					onclick={next}
+					aria-label="Next image"
+				></button>
+				<div class="pointer-events-none absolute right-0 top-0 h-full w-1/6 bg-gradient-to-l from-black/40 to-transparent opacity-70"></div>
+			{/if}
 
+			{#if isImageLoading}
+				<div class="absolute inset-0 flex items-center justify-center">
+					<LoadingSpinner />
+				</div>
+			{/if}
 			<img
 				src={currentPhoto.displayUrl}
 				alt={currentPhoto.title}
-				class="max-h-[75vh] w-auto max-w-full object-contain"
+				class="max-h-[75vh] w-auto max-w-full object-contain transition-opacity duration-300"
+				class:opacity-0={isImageLoading}
+				class:opacity-100={!isImageLoading}
+				onload={() => {
+					isImageLoading = false;
+				}}
 			/>
+			{#if totalPhotos > 1}
+				<div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
+					{#each photos as _, index}
+						<span
+							class="h-1.5 w-1.5 rounded-full bg-white/40 transition"
+							class:bg-white={index === currentIndex}
+							class:scale-110={index === currentIndex}
+						></span>
+					{/each}
+				</div>
+			{/if}
 		</div>
 
-		<div class="absolute bottom-0 left-0 w-full">
-			<div class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 text-sm text-white/70">
+		<div class="static w-full -mt-2 md:mt-0 md:absolute md:bottom-0 md:left-0">
+			<div class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-2 text-sm text-white/70 md:py-4">
 				<p class="max-w-xl text-balance text-white/60">{series.description}</p>
-				<div class="flex items-center gap-3">
-					<button class="rounded-full border border-white/30 px-4 py-2 hover:border-white" onclick={previous}>
-						Prev
-					</button>
-					<button class="rounded-full border border-white/30 px-4 py-2 hover:border-white" onclick={togglePlay}>
-						{isPlaying ? 'Pause' : 'Play'}
-					</button>
-					<button class="rounded-full border border-white/30 px-4 py-2 hover:border-white" onclick={next}>
-						Next
-					</button>
-				</div>
 			</div>
 		</div>
 
