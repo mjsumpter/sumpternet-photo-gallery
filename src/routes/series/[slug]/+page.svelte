@@ -112,7 +112,6 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-3 text-xs text-white/70">
-				<span>{currentIndex + 1} / {totalPhotos}</span>
 				<button class="rounded-full border border-white/30 px-3 py-1 hover:border-white" onclick={toggleInfo}>
 					{showInfo ? 'Hide Info' : 'Show Info'}
 				</button>
