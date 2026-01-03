@@ -51,17 +51,26 @@
 	const toggleInfoBox = () => {
 		showInfoBox = !showInfoBox;
 	};
+
+	const handleNavClick = (event: MouseEvent) => {
+		event.stopPropagation();
+		const target = event.target as HTMLElement;
+		if (target.closest('[data-ignore-nav]')) return;
+		if (!onPrev && !onNext) return;
+		const container = event.currentTarget as HTMLElement;
+		const rect = container.getBoundingClientRect();
+		const clickX = event.clientX - rect.left;
+		if (clickX < rect.width / 2) {
+			onPrev?.();
+		} else {
+			onNext?.();
+		}
+	};
 </script>
 
 <div class="modal" role="dialog" aria-modal="true" aria-label={photo.title} onclick={closeModal}>
-	<div class="modal-content" role="document" onclick={(e) => e.stopPropagation()}>
-		<button class="close-button" onclick={closeModal}>X</button>
-		{#if onPrev}
-			<button class="nav-button nav-left" onclick={onPrev} aria-label="Previous photo">←</button>
-		{/if}
-		{#if onNext}
-			<button class="nav-button nav-right" onclick={onNext} aria-label="Next photo">→</button>
-		{/if}
+	<div class="modal-content" role="document" onclick={handleNavClick}>
+		<button class="close-button" data-ignore-nav onclick={closeModal}>X</button>
 		<!-- Display the photo -->
 		{#if isImageLoading}
 			<div class="image-loading">
@@ -76,12 +85,12 @@
 		/>
 
 		<!-- Small preview info in the corner -->
-		<div class="info-preview" onclick={toggleInfoBox}>ℹ️ Info</div>
+		<div class="info-preview" data-ignore-nav onclick={toggleInfoBox}>ℹ️ Info</div>
 
 		<!-- Full info box -->
 		{#if showInfoBox}
-			<div class="info-box">
-				<button class="info-close" aria-label="Close info" onclick={toggleInfoBox}>x</button>
+			<div class="info-box" data-ignore-nav>
+				<button class="info-close" data-ignore-nav aria-label="Close info" onclick={toggleInfoBox}>x</button>
 				{#if photoContent.title}
 					<h3>{photoContent.title}</h3>
 				{/if}
@@ -108,32 +117,6 @@
 		font-size: 1.5rem;
 		cursor: pointer;
 		z-index: 10;
-	}
-
-	.nav-button {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		background: rgba(0, 0, 0, 0.5);
-		border: 1px solid rgba(255, 255, 255, 0.5);
-		color: white;
-		padding: 0.5rem 0.75rem;
-		border-radius: 999px;
-		cursor: pointer;
-		font-size: 1.25rem;
-		z-index: 10;
-	}
-
-	.nav-left {
-		left: 20px;
-	}
-
-	.nav-right {
-		right: 20px;
-	}
-
-	.nav-button:hover {
-		background: rgba(255, 255, 255, 0.1);
 	}
 
 	.close-button:hover {

@@ -11,6 +11,11 @@
 	let isImageLoading = $state(true);
 	let swipeStartX = $state(0);
 	let swipeStartY = $state(0);
+	let swipeBlocked = $state(false);
+	let swipeFeedback: 'next' | 'prev' | null = $state(null);
+	let swipeFeedbackTimeout: number | null = null;
+	let showNavHint = $state(true);
+	let navHintTimeout: number | null = null;
 
 	const currentPhoto = $derived(photos[currentIndex]);
 	const totalPhotos = $derived(photos.length);
@@ -23,15 +28,16 @@
 	const next = () => {
 		if (!hasPhotos || isLast) return;
 		isImageLoading = true;
+		showNavHint = false;
 		currentIndex = currentIndex + 1;
 	};
 
 	const previous = () => {
 		if (!hasPhotos || isFirst) return;
 		isImageLoading = true;
+		showNavHint = false;
 		currentIndex = currentIndex - 1;
 	};
-
 
 	const toggleInfo = () => {
 		showInfo = !showInfo;
@@ -51,6 +57,8 @@
 	});
 
 	const handleTouchStart = (event: TouchEvent) => {
+		swipeBlocked = !!window?.visualViewport && window.visualViewport.scale > 1.01;
+		if (swipeBlocked) return;
 		const touch = event.touches[0];
 		if (!touch) return;
 		swipeStartX = touch.clientX;
@@ -58,6 +66,7 @@
 	};
 
 	const handleTouchEnd = (event: TouchEvent) => {
+		if (swipeBlocked) return;
 		const touch = event.changedTouches[0];
 		if (!touch) return;
 		const deltaX = touch.clientX - swipeStartX;
@@ -67,9 +76,17 @@
 		if (absX < 40 || absX < absY) return;
 		if (deltaX < 0) {
 			next();
+			swipeFeedback = 'next';
 		} else {
 			previous();
+			swipeFeedback = 'prev';
 		}
+		if (swipeFeedbackTimeout !== null) {
+			clearTimeout(swipeFeedbackTimeout);
+		}
+		swipeFeedbackTimeout = window.setTimeout(() => {
+			swipeFeedback = null;
+		}, 260);
 	};
 
 	onMount(() => {
@@ -88,7 +105,20 @@
 		window.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('keydown', handleKeydown);
+			if (swipeFeedbackTimeout !== null) {
+				clearTimeout(swipeFeedbackTimeout);
+			}
+			if (navHintTimeout !== null) {
+				clearTimeout(navHintTimeout);
+			}
 		};
+	});
+
+	onMount(() => {
+		if (totalPhotos <= 1) return;
+		navHintTimeout = window.setTimeout(() => {
+			showNavHint = false;
+		}, 2400);
 	});
 </script>
 
@@ -147,10 +177,18 @@
 					<LoadingSpinner />
 				</div>
 			{/if}
+			{#if showNavHint && totalPhotos > 1}
+				<div class="nav-hint pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-6 text-[0.65rem] uppercase tracking-[0.4em] text-white/70">
+					<span>tap left</span>
+					<span>tap right</span>
+				</div>
+			{/if}
 			<img
 				src={currentPhoto.displayUrl}
 				alt={currentPhoto.title}
-				class="max-h-[75vh] w-auto max-w-full object-contain transition-opacity duration-300"
+				class={`max-h-[75vh] w-auto max-w-full object-contain transition-opacity duration-300 ${
+					swipeFeedback === 'next' ? 'swipe-left' : swipeFeedback === 'prev' ? 'swipe-right' : ''
+				}`}
 				class:opacity-0={isImageLoading}
 				class:opacity-100={!isImageLoading}
 				onload={() => {
@@ -187,3 +225,53 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	@keyframes swipeLeftHint {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(-10px);
+		}
+	}
+
+	@keyframes swipeRightHint {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(10px);
+		}
+	}
+
+	.swipe-left {
+		animation: swipeLeftHint 0.26s ease-out;
+	}
+
+	.swipe-right {
+		animation: swipeRightHint 0.26s ease-out;
+	}
+
+	.nav-hint {
+		animation: navHintFade 2.4s ease-out forwards;
+	}
+
+	@keyframes navHintFade {
+		0% {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+		20%,
+		70% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(-6px);
+		}
+	}
+</style>
