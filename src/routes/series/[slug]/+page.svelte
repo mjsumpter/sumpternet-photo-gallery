@@ -99,6 +99,17 @@
 			<div class="text-center">
 				<p class="text-xs uppercase tracking-[0.3em] text-white/60">Series</p>
 				<h1 class="text-lg font-semibold sm:text-xl">{series.title}</h1>
+				{#if totalPhotos > 1}
+					<div class="mt-2 flex items-center justify-center gap-2">
+						{#each photos as _, index}
+							<span
+								class={`h-1.5 w-1.5 rounded-full transition ${
+									index === currentIndex ? 'bg-white scale-150' : 'bg-white/25'
+								}`}
+							></span>
+						{/each}
+					</div>
+				{/if}
 			</div>
 			<div class="flex items-center gap-3 text-xs text-white/70">
 				<span>{currentIndex + 1} / {totalPhotos}</span>
@@ -147,19 +158,6 @@
 					isImageLoading = false;
 				}}
 			/>
-			{#if totalPhotos > 1}
-				<div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
-					{#each photos as _, index}
-						<span
-							class={`h-1.5 w-1.5 rounded-full transition ${
-								index === currentIndex
-									? 'bg-white scale-150'
-									: 'bg-white/25'
-							}`}
-						></span>
-					{/each}
-				</div>
-			{/if}
 		</div>
 
 		<div class="static w-full -mt-2 md:mt-0 md:absolute md:bottom-0 md:left-0">
