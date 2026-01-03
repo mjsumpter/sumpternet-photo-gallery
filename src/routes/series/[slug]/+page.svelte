@@ -37,6 +37,19 @@
 		showInfo = !showInfo;
 	};
 
+	const preloadImage = (url?: string) => {
+		if (!url || typeof window === 'undefined') return;
+		const img = new Image();
+		img.src = url;
+	};
+
+	$effect(() => {
+		if (!hasPhotos) return;
+		preloadImage(currentPhoto?.displayUrl);
+		preloadImage(photos[currentIndex - 1]?.displayUrl);
+		preloadImage(photos[currentIndex + 1]?.displayUrl);
+	});
+
 	const handleTouchStart = (event: TouchEvent) => {
 		const touch = event.touches[0];
 		if (!touch) return;
@@ -138,9 +151,11 @@
 				<div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
 					{#each photos as _, index}
 						<span
-							class="h-1.5 w-1.5 rounded-full bg-white/40 transition"
-							class:bg-white={index === currentIndex}
-							class:scale-110={index === currentIndex}
+							class={`h-1.5 w-1.5 rounded-full transition ${
+								index === currentIndex
+									? 'bg-white scale-150'
+									: 'bg-white/25'
+							}`}
 						></span>
 					{/each}
 				</div>
